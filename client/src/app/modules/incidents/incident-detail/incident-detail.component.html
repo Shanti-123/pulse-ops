@@ -1,0 +1,295 @@
+<div class="detail-page">
+
+    <!-- Back -->
+    <div class="back-nav animate-fade-in">
+        <button class="back-btn" (click)="goBack()">← Back to Incidents</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <span>Loading incident...</span>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" *ngIf="!isLoading && errorMessage && !incident">
+        <div class="empty-icon">◎</div>
+        <h3>{{ errorMessage }}</h3>
+        <button class="btn btn-outline" (click)="goBack()">Go Back</button>
+    </div>
+
+    <div *ngIf="!isLoading && incident">
+
+        <!-- Header -->
+        <div class="incident-header animate-fade-in-up stagger-1">
+            <div class="header-left">
+                <div class="severity-indicator" [class]="'sev-' + incident.severity"></div>
+                <div>
+                    <div class="header-badges">
+                        <span class="badge" [class]="'badge-' + incident.severity">{{ incident.severity }}</span>
+                        <span class="badge" [class]="'badge-' + incident.status">{{ incident.status }}</span>
+                        <span class="inc-id mono">{{ incident.incidentId }}</span>
+                    </div>
+                    <h1 class="incident-title">{{ incident.title }}</h1>
+                    <p class="incident-service mono">{{ incident.serviceId }}</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" *ngIf="canAssign()"
+                    (click)="showAssignForm = !showAssignForm; showResolveForm = false">
+                    ◈ Assign
+                </button>
+                <button class="btn btn-primary" *ngIf="canResolve()"
+                    (click)="showResolveForm = !showResolveForm; showAssignForm = false">
+                    ✓ Resolve
+                </button>
+                <button class="btn btn-danger" *ngIf="canClose()" [disabled]="isClosing" (click)="close()">
+                    <span class="spinner" *ngIf="isClosing"></span>
+                    <span>✕ Close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Banners -->
+        <div class="success-banner animate-fade-in" *ngIf="successMessage">
+            <span>✓</span><span>{{ successMessage }}</span>
+        </div>
+        <div class="error-banner animate-fade-in" *ngIf="errorMessage">
+            <span>⚠</span><span>{{ errorMessage }}</span>
+        </div>
+
+        <!-- Resolve Form -->
+        <div class="action-form animate-fade-in-up" *ngIf="showResolveForm">
+            <h4 class="form-title">Resolve Incident</h4>
+            <div class="form-fields">
+                <div class="field-group">
+                    <label class="field-label">Root Cause *</label>
+                    <input class="input" [(ngModel)]="resolveForm.rootCause" placeholder="What caused this incident?" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Resolution Notes</label>
+                    <input class="input" [(ngModel)]="resolveForm.notes" placeholder="Steps taken to resolve..." />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-ghost" (click)="showResolveForm = false">Cancel</button>
+                <button class="btn btn-primary" (click)="resolve()" [disabled]="isResolving">
+                    <span class="spinner" *ngIf="isResolving"></span>
+                    <span>{{ isResolving ? 'Resolving...' : 'Confirm Resolve' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Assign Form -->
+        <div class="action-form animate-fade-in-up" *ngIf="showAssignForm">
+            <h4 class="form-title">Assign Incident</h4>
+            <div class="form-fields">
+                <div class="field-group">
+                    <label class="field-label">Assign To *</label>
+                    <input class="input" [(ngModel)]="assignForm.assignedTo" placeholder="engineer@company.com" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-ghost" (click)="showAssignForm = false">Cancel</button>
+                <button class="btn btn-outline" (click)="assign()" [disabled]="isAssigning">
+                    <span class="spinner" *ngIf="isAssigning"></span>
+                    <span>{{ isAssigning ? 'Assigning...' : 'Assign' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Meta Cards -->
+        <div class="meta-cards animate-fade-in-up stagger-2">
+            <div class="meta-card">
+                <span class="meta-label">Triggered</span>
+                <span class="meta-val mono">{{ formatDate(incident.triggeredAt) }}</span>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Resolved</span>
+                <span class="meta-val mono">
+                    {{ incident.resolvedAt ? formatDate(incident.resolvedAt) : '—' }}
+                </span>
+            </div>
+            <div class="meta-card">
+                <span class="meta-label">Assigned To</span>
+                <span class="meta-val">{{ incident.assignedTo || '—' }}</span>
+            </div>
+            <div class="meta-card" [class.meta-card-warning]="incident.correlatedDeploymentId">
+                <span class="meta-label">Correlated Deployment</span>
+                <div class="deployment-link" *ngIf="incident.correlatedDeploymentId">
+                    <span class="deploy-dot"></span>
+                    <span class="meta-val mono deployment-id">
+                        {{ incident.correlatedDeploymentId | slice:0:12 }}...
+                    </span>
+                    <span class="deploy-badge">Recent Deploy</span>
+                </div>
+                <span class="meta-val" *ngIf="!incident.correlatedDeploymentId">—</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs animate-fade-in-up stagger-3">
+            <button class="tab" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Overview</button>
+            <button class="tab" [class.active]="activeTab === 'ai'" (click)="setTab('ai')">
+                AI Analysis
+                <span class="tab-badge" *ngIf="incident.aiAnalysis">
+                    {{ (incident.aiAnalysis.confidence * 100).toFixed(0) }}%
+                </span>
+            </button>
+            <button class="tab" [class.active]="activeTab === 'postmortem'"
+                (click)="setTab('postmortem')">Postmortem</button>
+            <button class="tab" [class.active]="activeTab === 'runbook'" (click)="setTab('runbook')">Runbook</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content animate-fade-in stagger-4">
+
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'">
+                <div class="content-grid">
+                    <div class="card">
+                        <h4 class="section-title">Description</h4>
+                        <p class="description-text">{{ incident.description }}</p>
+
+                        <div class="divider"></div>
+
+                        <h4 class="section-title">Affected Metrics</h4>
+                        <div class="metrics-grid">
+                            <div class="metric-box" *ngIf="incident.affectedMetrics?.cpu !== undefined">
+                                <span class="metric-box-label">CPU</span>
+                                <span class="metric-box-val mono" [style.color]="incident.affectedMetrics.cpu >= 90 ? 'var(--accent-crimson)' :
+                                 incident.affectedMetrics.cpu >= 75 ? 'var(--accent-amber)' :
+                                 'var(--accent-mint)'">
+                                    {{ incident.affectedMetrics.cpu?.toFixed(1) }}%
+                                </span>
+                            </div>
+                            <div class="metric-box" *ngIf="incident.affectedMetrics?.memory !== undefined">
+                                <span class="metric-box-label">Memory</span>
+                                <span class="metric-box-val mono" [style.color]="incident.affectedMetrics.memory >= 90 ? 'var(--accent-crimson)' :
+                                 incident.affectedMetrics.memory >= 75 ? 'var(--accent-amber)' :
+                                 'var(--accent-mint)'">
+                                    {{ incident.affectedMetrics.memory?.toFixed(1) }}%
+                                </span>
+                            </div>
+                            <div class="metric-box" *ngIf="incident.affectedMetrics?.latency !== undefined">
+                                <span class="metric-box-label">Latency</span>
+                                <span class="metric-box-val mono" [style.color]="incident.affectedMetrics.latency >= 3000 ? 'var(--accent-crimson)' :
+                                 incident.affectedMetrics.latency >= 1000 ? 'var(--accent-amber)' :
+                                 'var(--accent-mint)'">
+                                    {{ incident.affectedMetrics.latency?.toFixed(0) }}ms
+                                </span>
+                            </div>
+                            <div class="metric-box" *ngIf="incident.affectedMetrics?.errorRate !== undefined">
+                                <span class="metric-box-label">Error Rate</span>
+                                <span class="metric-box-val mono" [style.color]="incident.affectedMetrics.errorRate >= 10 ? 'var(--accent-crimson)' :
+                                 incident.affectedMetrics.errorRate >= 5 ? 'var(--accent-amber)' :
+                                 'var(--accent-mint)'">
+                                    {{ incident.affectedMetrics.errorRate?.toFixed(1) }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Steps -->
+                    <div class="card" *ngIf="agentSteps.length > 0">
+                        <h4 class="section-title">
+                            <span class="live-dot dot-cyan"></span>
+                            Live Agent Feed
+                        </h4>
+                        <div class="agent-feed">
+                            <div class="agent-step" *ngFor="let step of agentSteps"
+                                [class.step-complete]="step.status === 'complete'"
+                                [class.step-running]="step.status === 'running'"
+                                [class.step-failed]="step.status === 'failed'">
+                                <div class="step-icon">
+                                    <span *ngIf="step.status === 'complete'">✓</span>
+                                    <span *ngIf="step.status === 'running'" class="spinner-tiny"></span>
+                                    <span *ngIf="step.status === 'failed'">✗</span>
+                                </div>
+                                <div class="step-info">
+                                    <span class="step-tool mono">{{ step.tool }}</span>
+                                    <span class="step-summary">{{ step.summary }}</span>
+                                </div>
+                                <span class="step-num mono">{{ step.step }}/{{ step.totalSteps }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- AI Analysis Tab -->
+            <div *ngIf="activeTab === 'ai'">
+                <div class="card ai-card" *ngIf="incident.aiAnalysis">
+                    <div class="ai-header">
+                        <div class="ai-logo">◎</div>
+                        <div>
+                            <h3>AI Root Cause Analysis</h3>
+                            <p>Analyzed {{ formatDate(incident.aiAnalysis.analyzedAt) }}</p>
+                        </div>
+                        <div class="confidence-badge">
+                            <span class="conf-label">Confidence</span>
+                            <span class="conf-val mono">
+                                {{ (incident.aiAnalysis.confidence * 100).toFixed(0) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="ai-section">
+                        <h4 class="ai-section-title">Summary</h4>
+                        <p class="ai-text">{{ incident.aiAnalysis.summary }}</p>
+                    </div>
+
+                    <div class="ai-section">
+                        <h4 class="ai-section-title">Root Cause</h4>
+                        <p class="ai-text highlight">{{ incident.rootCause }}</p>
+                    </div>
+
+                    <div class="ai-section">
+                        <h4 class="ai-section-title">Suggested Fix</h4>
+                        <p class="ai-text">{{ incident.aiAnalysis.suggestedFix }}</p>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="!incident.aiAnalysis">
+                    <div class="empty-icon">◎</div>
+                    <h3>AI analysis pending</h3>
+                    <p>The AI agent is investigating this incident</p>
+                </div>
+            </div>
+
+            <!-- Postmortem Tab -->
+            <div *ngIf="activeTab === 'postmortem'">
+                <div class="card markdown-card" *ngIf="incident.postmortem">
+                    <div class="markdown-header">
+                        <h4>Incident Postmortem</h4>
+                        <span class="mono text-muted">Auto-generated by PulseOps AI</span>
+                    </div>
+                    <pre class="markdown-content">{{ incident.postmortem }}</pre>
+                </div>
+                <div class="empty-state" *ngIf="!incident.postmortem">
+                    <div class="empty-icon">◈</div>
+                    <h3>Postmortem pending</h3>
+                    <p>Will be generated after AI investigation completes</p>
+                </div>
+            </div>
+
+            <!-- Runbook Tab -->
+            <div *ngIf="activeTab === 'runbook'">
+                <div class="card markdown-card" *ngIf="incident.runbook">
+                    <div class="markdown-header">
+                        <h4>Emergency Runbook</h4>
+                        <span class="mono text-muted">Auto-generated by PulseOps AI</span>
+                    </div>
+                    <pre class="markdown-content">{{ incident.runbook }}</pre>
+                </div>
+                <div class="empty-state" *ngIf="!incident.runbook">
+                    <div class="empty-icon">◈</div>
+                    <h3>Runbook pending</h3>
+                    <p>Will be generated after AI investigation completes</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

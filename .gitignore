@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+sdk/node_modules/
+
+# Build outputs
+client/dist/
+server/dist/
+
+# Environment files — never commit these
+server/.env
+client/.env
+.env
+
+# Playwright
+client/test-results/
+client/playwright-report/
+
+# Logs
+*.log
+npm-debug.log*

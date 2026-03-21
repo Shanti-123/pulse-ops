@@ -1,0 +1,14 @@
+<header class="topbar">
+    <div class="topbar-left">
+        <h2 class="page-title">{{ pageTitle }}</h2>
+    </div>
+
+    <div class="topbar-right">
+        <div class="time-display mono">{{ currentTime }}</div>
+
+        <div class="ws-indicator" [class.connected]="isConnected">
+            <span class="live-dot" [class.dot-red]="!isConnected" [class.dot-cyan]="isConnected"></span>
+            <span class="ws-label">{{ isConnected ? 'Live' : 'Offline' }}</span>
+        </div>
+    </div>
+</header>

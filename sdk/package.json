@@ -1,0 +1,19 @@
+{
+    "name": "pulseops-sdk",
+    "version": "1.0.0",
+    "description": "PulseOps metric ingestion SDK for Node.js services",
+    "main": "dist/pulseops.sdk.js",
+    "types": "dist/pulseops.sdk.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "ts-node src/pulseops.sdk.ts"
+    },
+    "dependencies": {
+        "node-fetch": "^3.3.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+        "ts-node": "^10.9.0"
+    }
+}

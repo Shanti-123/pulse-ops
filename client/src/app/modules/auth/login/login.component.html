@@ -1,0 +1,154 @@
+<div class="login-page">
+
+    <!-- Animated background -->
+    <div class="bg-mesh">
+        <div class="mesh-orb orb-1"></div>
+        <div class="mesh-orb orb-2"></div>
+        <div class="mesh-orb orb-3"></div>
+    </div>
+
+    <!-- Grid overlay -->
+    <div class="bg-grid"></div>
+
+    <!-- Card -->
+    <div class="login-card animate-fade-in-up">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="logo-hex-large">⬡</div>
+            <div>
+                <h1 class="brand-name">PulseOps</h1>
+                <p class="brand-sub">AI Observability Platform</p>
+            </div>
+        </div>
+
+        <!-- Mode toggle -->
+        <div class="mode-toggle">
+            <button class="toggle-btn" [class.active]="!isRegisterMode" (click)="isRegisterMode && toggleMode()">
+                Sign In
+            </button>
+            <button class="toggle-btn" [class.active]="isRegisterMode" (click)="!isRegisterMode && toggleMode()">
+                Register
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="form" (ngSubmit)="submit()" class="login-form" novalidate>
+
+            <!-- Name (register only) -->
+            <div class="field-group" *ngIf="isRegisterMode">
+                <label class="field-label">Full Name</label>
+                <input class="input" [class.input-error]="nameError" type="text" formControlName="name"
+                    placeholder="John Doe" autocomplete="name" />
+                <span class="field-error" *ngIf="nameError">{{ nameError }}</span>
+            </div>
+
+            <!-- Email -->
+            <div class="field-group">
+                <label class="field-label">Email Address</label>
+                <input class="input" [class.input-error]="emailError" type="email" formControlName="email"
+                    placeholder="you@company.com" autocomplete="email" />
+                <span class="field-error" *ngIf="emailError">{{ emailError }}</span>
+            </div>
+
+            <!-- Password -->
+            <div class="field-group">
+                <label class="field-label">Password</label>
+                <div class="input-wrapper">
+                    <input class="input" [class.input-error]="passwordError" [type]="showPassword ? 'text' : 'password'"
+                        formControlName="password" placeholder="Min 8 chars, A-Z, 0-9, !@#$"
+                        autocomplete="current-password" />
+                    <button type="button" class="eye-btn" (click)="showPassword = !showPassword">
+                        {{ showPassword ? '◉' : '○' }}
+                    </button>
+                </div>
+                <span class="field-error" *ngIf="passwordError">{{ passwordError }}</span>
+
+                <!-- Strength Indicator — show when typing -->
+                <div class="strength-wrapper" *ngIf="form.get('password')?.value?.length > 0">
+
+                    <!-- Bar -->
+                    <div class="strength-bars">
+                        <div class="strength-bar" *ngFor="let i of [1,2,3,4,5]" [class.filled]="strengthScore >= i"
+                            [style.background]="strengthScore >= i ? strengthColor : ''">
+                        </div>
+                    </div>
+
+                    <!-- Label -->
+                    <span class="strength-label" [style.color]="strengthColor">
+                        {{ strengthLabel }}
+                    </span>
+                </div>
+
+                <!-- Checklist — register mode only -->
+                <div class="strength-checklist" *ngIf="isRegisterMode && form.get('password')?.value?.length > 0">
+                    <div class="check-item" [class.passed]="strengthChecks.min8">
+                        <span class="check-icon">{{ strengthChecks.min8 ? '✓' : '○' }}</span>
+                        <span>At least 8 characters</span>
+                    </div>
+                    <div class="check-item" [class.passed]="strengthChecks.uppercase">
+                        <span class="check-icon">{{ strengthChecks.uppercase ? '✓' : '○' }}</span>
+                        <span>Uppercase letter (A-Z)</span>
+                    </div>
+                    <div class="check-item" [class.passed]="strengthChecks.lowercase">
+                        <span class="check-icon">{{ strengthChecks.lowercase ? '✓' : '○' }}</span>
+                        <span>Lowercase letter (a-z)</span>
+                    </div>
+                    <div class="check-item" [class.passed]="strengthChecks.number">
+                        <span class="check-icon">{{ strengthChecks.number ? '✓' : '○' }}</span>
+                        <span>Number (0-9)</span>
+                    </div>
+                    <div class="check-item" [class.passed]="strengthChecks.special">
+                        <span class="check-icon">{{ strengthChecks.special ? '✓' : '○' }}</span>
+                        <span>Special character (!@#$%...)</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Role (register only) -->
+            <div class="field-group" *ngIf="isRegisterMode">
+                <label class="field-label">Role</label>
+                <select class="select" formControlName="role">
+                    <option *ngFor="let r of roles" [value]="r">
+                        {{ r.charAt(0).toUpperCase() + r.slice(1) }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Success Banner -->
+            <div class="success-banner" *ngIf="successMessage">
+                <span>✓</span>
+                <span>{{ successMessage }}</span>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="error-banner" *ngIf="errorMessage">
+                <span>⚠</span>
+                <span>{{ errorMessage }}</span>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary submit-btn" [disabled]="isLoading">
+                <span class="spinner" *ngIf="isLoading"></span>
+                <span>
+                    {{ isLoading
+                    ? (isRegisterMode ? 'Creating...' : 'Signing in...')
+                    : (isRegisterMode ? 'Create Account' : 'Sign In')
+                    }}
+                </span>
+            </button>
+
+        </form>
+
+        <!-- Footer -->
+        <p class="login-footer">
+            {{ isRegisterMode ? 'Already have an account?' : 'New to PulseOps?' }}
+            <button class="link-btn" (click)="toggleMode()">
+                {{ isRegisterMode ? 'Sign In' : 'Create account' }}
+            </button>
+        </p>
+
+    </div>
+
+</div>

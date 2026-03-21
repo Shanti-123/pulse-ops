@@ -1,0 +1,37 @@
+// ─── Color Palette ───────────────────────────────────
+:root {
+  --bg-primary:      #0A0B0F;
+  --bg-surface:      #111318;
+  --bg-elevated:     #161820;
+  --border-subtle:   #1E2028;
+  --border-glow:     #00D4FF30;
+
+  --accent-cyan:     #00D4FF;
+  --accent-violet:   #7B61FF;
+  --accent-mint:     #00E5A0;
+  --accent-amber:    #FFB830;
+  --accent-crimson:  #FF4757;
+
+  --text-primary:    #E8EAED;
+  --text-secondary:  #9AA0AC;
+  --text-muted:      #6B7280;
+
+  --gradient-primary: linear-gradient(135deg, #00D4FF, #7B61FF);
+  --gradient-danger:  linear-gradient(135deg, #FF4757, #FFB830);
+  --gradient-success: linear-gradient(135deg, #00E5A0, #00D4FF);
+
+  --shadow-glow-cyan:   0 0 20px #00D4FF25;
+  --shadow-glow-violet: 0 0 20px #7B61FF25;
+  --shadow-glow-red:    0 0 20px #FF475725;
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  --sidebar-width: 240px;
+  --topbar-height: 64px;
+}

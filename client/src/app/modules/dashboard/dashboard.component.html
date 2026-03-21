@@ -1,0 +1,210 @@
+<div class="dashboard">
+
+    <!-- Background mesh -->
+    <div class="dash-bg">
+        <div class="dash-orb orb-cyan"></div>
+        <div class="dash-orb orb-violet"></div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="notifications-stack">
+        <div *ngFor="let n of notifications" class="notif-item animate-slide-in-right"
+            [class.notif-critical]="n.type === 'critical'" [class.notif-warning]="n.type === 'warning'"
+            [class.notif-success]="n.type === 'success'">
+            {{ n.message }}
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="dash-header animate-fade-in-up stagger-1">
+        <div>
+            <h1 class="dash-greeting">Good {{ getGreeting() }}, {{ userName }} 👋</h1>
+            <p class="dash-sub">Here's what's happening across your infrastructure</p>
+        </div>
+        <div class="dash-actions">
+            <button class="btn btn-outline" (click)="loadData()">↻ Refresh</button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid animate-fade-in-up stagger-2">
+
+        <div class="stat-card">
+            <div class="stat-label">Total Incidents</div>
+            <div class="stat-value">{{ stats.totalIncidents }}</div>
+            <div class="stat-sub">Last 24 hours</div>
+        </div>
+
+        <div class="stat-card stat-danger">
+            <div class="stat-label">Open Incidents</div>
+            <div class="stat-value danger">{{ stats.openIncidents }}</div>
+            <div class="stat-sub">Needs attention</div>
+        </div>
+
+        <div class="stat-card stat-critical">
+            <div class="stat-label">Critical Severity</div>
+            <div class="stat-value critical">{{ stats.criticalIncidents }}</div>
+            <div class="stat-sub">Highest priority</div>
+        </div>
+
+        <div class="stat-card stat-success">
+            <div class="stat-label">Resolved Today</div>
+            <div class="stat-value success">{{ stats.resolvedToday }}</div>
+            <div class="stat-sub">Closed incidents</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Avg Resolution</div>
+            <div class="stat-value">{{ stats.avgResolutionTime }}<span class="stat-unit">m</span></div>
+            <div class="stat-sub">Minutes to resolve</div>
+        </div>
+
+        <div class="stat-card stat-services">
+            <div class="stat-label">Healthy Services</div>
+            <div class="stat-value mint">{{ stats.healthyServices }}/{{ stats.totalServices }}</div>
+            <div class="stat-sub">{{ stats.degradedServices }} degraded</div>
+        </div>
+
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+
+        <!-- Recent Incidents -->
+        <div class="card incidents-card animate-fade-in-up stagger-3">
+            <div class="card-header">
+                <h3 class="card-title">Recent Incidents</h3>
+                <a routerLink="/incidents" class="card-link">View all →</a>
+            </div>
+
+            <div *ngIf="isLoading" class="loading-state">
+                <div class="spinner"></div>
+                <span>Loading incidents...</span>
+            </div>
+
+            <div *ngIf="!isLoading && recentIncidents.length === 0" class="empty-state">
+                <div class="empty-icon">◎</div>
+                <h3>No incidents</h3>
+                <p>All systems are operating normally</p>
+            </div>
+
+            <div class="incidents-list" *ngIf="!isLoading && recentIncidents.length > 0">
+                <div class="incident-row" *ngFor="let inc of recentIncidents" [routerLink]="['/incidents', inc._id]">
+                    <div class="incident-left">
+                        <span [class]="getSeverityClass(inc.severity)">{{ inc.severity }}</span>
+                        <div class="incident-info">
+                            <span class="incident-title">{{ inc.title }}</span>
+                            <span class="incident-meta">{{ inc.serviceId }} · {{ timeAgo(inc.triggeredAt) }}</span>
+                        </div>
+                    </div>
+                    <span [class]="getStatusClass(inc.status)">{{ inc.status }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+
+            <!-- Live Metrics -->
+            <div class="card metrics-card animate-fade-in-up stagger-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="live-dot dot-cyan"></span>
+                        Live Metrics
+                    </h3>
+                </div>
+
+                <div *ngIf="liveMetrics.length === 0" class="empty-state">
+                    <div class="empty-icon">◈</div>
+                    <h3>Waiting for metrics</h3>
+                    <p>Updates every 5 seconds</p>
+                </div>
+
+                <div class="metrics-list" *ngIf="liveMetrics.length > 0">
+                    <div class="metric-row" *ngFor="let m of liveMetrics.slice(0, 4)">
+                        <div class="metric-service">{{ m.serviceId | slice:0:16 }}</div>
+                        <div class="metric-bars">
+                            <div class="metric-bar-item">
+                                <span class="metric-bar-label">CPU</span>
+                                <div class="metric-bar-track">
+                                    <div class="metric-bar-fill" [style.width.%]="m.metrics?.cpu || 0"
+                                        [style.background]="getMetricColor(m.metrics?.cpu, 'cpu')"></div>
+                                </div>
+                                <span class="metric-bar-val mono">{{ (m.metrics?.cpu || 0).toFixed(0) }}%</span>
+                            </div>
+                            <div class="metric-bar-item">
+                                <span class="metric-bar-label">MEM</span>
+                                <div class="metric-bar-track">
+                                    <div class="metric-bar-fill" [style.width.%]="m.metrics?.memory || 0"
+                                        [style.background]="getMetricColor(m.metrics?.memory, 'memory')"></div>
+                                </div>
+                                <span class="metric-bar-val mono">{{ (m.metrics?.memory || 0).toFixed(0) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Agent Feed -->
+            <div class="card agent-card animate-fade-in-up stagger-5">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span class="live-dot dot-violet"></span>
+                        AI Agent Feed
+                    </h3>
+                </div>
+
+                <div *ngIf="agentSteps.length === 0" class="empty-state">
+                    <div class="empty-icon">◎</div>
+                    <h3>Agent standby</h3>
+                    <p>Activates on anomaly detection</p>
+                </div>
+
+                <div class="agent-feed" *ngIf="agentSteps.length > 0">
+                    <div class="agent-step" *ngFor="let step of agentSteps"
+                        [class.step-complete]="step.status === 'complete'"
+                        [class.step-running]="step.status === 'running'" [class.step-failed]="step.status === 'failed'">
+                        <div class="step-icon">
+                            <span *ngIf="step.status === 'complete'">✓</span>
+                            <span *ngIf="step.status === 'running'" class="spinner-tiny"></span>
+                            <span *ngIf="step.status === 'failed'">✗</span>
+                        </div>
+                        <div class="step-info">
+                            <span class="step-tool mono">{{ step.tool }}</span>
+                            <span class="step-summary">{{ step.summary }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Services Overview -->
+    <div class="card services-overview animate-fade-in-up stagger-6">
+        <div class="card-header">
+            <h3 class="card-title">Services Overview</h3>
+            <a routerLink="/services" class="card-link">Manage →</a>
+        </div>
+
+        <div *ngIf="services.length === 0" class="empty-state">
+            <div class="empty-icon">◈</div>
+            <h3>No services registered</h3>
+            <p>Register your first service to start monitoring</p>
+        </div>
+
+        <div class="services-grid" *ngIf="services.length > 0">
+            <div class="service-chip" *ngFor="let svc of services" [class.chip-healthy]="svc.status === 'healthy'"
+                [class.chip-degraded]="svc.status === 'degraded'" [class.chip-down]="svc.status === 'down'"
+                [class.chip-unknown]="svc.status === 'unknown'" [routerLink]="['/services']">
+                <div class="chip-dot"></div>
+                <div class="chip-info">
+                    <span class="chip-name">{{ svc.name }}</span>
+                    <span class="chip-env mono">{{ svc.environment }}</span>
+                </div>
+                <span class="chip-status">{{ svc.status }}</span>
+            </div>
+        </div>
+    </div>
+
+</div>

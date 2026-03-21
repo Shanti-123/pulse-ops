@@ -1,0 +1,166 @@
+<div class="incidents-page">
+
+    <!-- Background -->
+    <div class="page-bg">
+        <div class="bg-orb orb-red"></div>
+        <div class="bg-orb orb-violet"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header animate-fade-in-up stagger-1">
+        <div>
+            <h1>Incident Command</h1>
+            <p>Track, investigate and resolve production incidents</p>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row animate-fade-in-up stagger-2">
+        <div class="stat-pill">
+            <span class="pill-val">{{ stats.total || 0 }}</span>
+            <span class="pill-label">Total</span>
+        </div>
+        <div class="stat-pill pill-danger">
+            <span class="pill-val">{{ stats.byStatus?.open || 0 }}</span>
+            <span class="pill-label">Open</span>
+        </div>
+        <div class="stat-pill pill-warning">
+            <span class="pill-val">{{ stats.byStatus?.investigating || 0 }}</span>
+            <span class="pill-label">Investigating</span>
+        </div>
+        <div class="stat-pill pill-success">
+            <span class="pill-val">{{ stats.byStatus?.resolved || 0 }}</span>
+            <span class="pill-label">Resolved</span>
+        </div>
+        <div class="stat-pill pill-critical">
+            <span class="pill-val">{{ stats.bySeverity?.critical || 0 }}</span>
+            <span class="pill-label">Critical</span>
+        </div>
+        <div class="stat-pill">
+            <span class="pill-val mono">{{ stats.avgResolutionTimeMinutes || 0 }}m</span>
+            <span class="pill-label">Avg Resolution</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar animate-fade-in-up stagger-3">
+        <select class="select filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+            <option value="">All Statuses</option>
+            <option value="open">Open</option>
+            <option value="investigating">Investigating</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+        </select>
+
+        <select class="select filter-select" [(ngModel)]="filterSeverity" (change)="applyFilters()">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+
+        <input class="input service-filter" placeholder="Filter by service ID..." [(ngModel)]="filterServiceId"
+            (input)="applyFilters()" />
+
+        <button class="btn btn-ghost" *ngIf="filterStatus || filterSeverity || filterServiceId"
+            (click)="clearFilters()">
+            ✕ Clear
+        </button>
+
+        <span class="results-count mono">{{ totalCount }} incidents</span>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <span>Loading incidents...</span>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoading && incidents.length === 0">
+        <div class="empty-icon">◎</div>
+        <h3>No incidents found</h3>
+        <p>{{ filterStatus || filterSeverity ? 'Try adjusting your filters' : 'All systems operating normally' }}</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container animate-fade-in-up stagger-4" *ngIf="!isLoading && incidents.length > 0">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Title</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Triggered</th>
+                        <th>AI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let inc of incidents; let i = index" (click)="viewIncident(inc._id)"
+                        class="incident-row" [style.animation-delay]="i * 0.03 + 's'">
+                        <td>
+                            <span class="badge" [class]="'badge-' + inc.severity">
+                                {{ inc.severity }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="incident-title-cell">
+                                <span class="inc-title">{{ inc.title }}</span>
+                                <span class="inc-id mono">{{ inc.incidentId }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="mono service-id">{{ inc.serviceId }}</span>
+                        </td>
+                        <td>
+                            <span class="badge" [class]="'badge-' + inc.status">
+                                {{ inc.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="assigned-to" *ngIf="inc.assignedTo">
+                                {{ inc.assignedTo | slice:0:20 }}
+                            </span>
+                            <span class="unassigned" *ngIf="!inc.assignedTo">—</span>
+                        </td>
+                        <td>
+                            <span class="mono time-ago">{{ timeAgo(inc.triggeredAt) }}</span>
+                        </td>
+                        <td>
+                            <span class="ai-badge" *ngIf="inc.aiAnalysis">
+                                <span class="ai-dot"></span>
+                                {{ (inc.aiAnalysis.confidence * 100).toFixed(0) }}%
+                            </span>
+                            <span class="no-ai" *ngIf="!inc.aiAnalysis">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+                ← Prev
+            </button>
+
+            <button *ngFor="let p of getPages()" class="page-btn" [class.active]="p === currentPage"
+                (click)="goToPage(p)">
+                {{ p }}
+            </button>
+
+            <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+                Next →
+            </button>
+
+            <span class="page-info mono">
+                {{ currentPage }} / {{ totalPages }}
+            </span>
+        </div>
+    </div>
+
+</div>

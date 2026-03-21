@@ -1,0 +1,44 @@
+<aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+            <span class="logo-hex">⬡</span>
+        </div>
+        <div class="logo-text">
+            <span class="logo-name">PulseOps</span>
+            <span class="logo-tagline">AI Observability</span>
+        </div>
+    </div>
+
+    <!-- Live indicator -->
+    <div class="live-status" [class.connected]="isConnected">
+        <span class="live-dot" [class.dot-red]="!isConnected"></span>
+        <span>{{ isConnected ? 'Live' : 'Connecting...' }}</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+        <div *ngFor="let item of navItems" class="nav-item" [class.active]="isActive(item.path)"
+            (click)="navigate(item.path)">
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+            <span class="nav-active-bar" *ngIf="isActive(item.path)"></span>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+            <div class="user-meta">
+                <span class="user-name">{{ userName }}</span>
+                <span class="user-role">{{ userRole }}</span>
+            </div>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Logout">
+            <span>⏻</span>
+        </button>
+    </div>
+
+</aside>

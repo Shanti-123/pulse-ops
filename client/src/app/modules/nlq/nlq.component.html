@@ -1,0 +1,145 @@
+<div class="nlq-page">
+
+    <!-- Background -->
+    <div class="nlq-bg">
+        <div class="bg-orb orb-violet"></div>
+        <div class="bg-orb orb-cyan"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="nlq-header animate-fade-in-up stagger-1">
+        <div class="header-left">
+            <div class="ai-icon">◎</div>
+            <div>
+                <h1>AI Query Engine</h1>
+                <p>Ask questions about your infrastructure in plain English</p>
+            </div>
+        </div>
+        <button class="btn btn-ghost" (click)="clearChat()">
+            ↺ Clear Chat
+        </button>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="nlq-layout">
+
+        <!-- Chat Area -->
+        <div class="chat-container animate-fade-in-up stagger-2">
+
+            <!-- Messages -->
+            <div class="messages-area">
+                <div *ngFor="let msg of messages" class="message-wrapper" [class.user-wrapper]="msg.type === 'user'"
+                    [class.ai-wrapper]="msg.type === 'ai'">
+
+                    <!-- AI Message -->
+                    <div class="message ai-message" *ngIf="msg.type === 'ai'">
+                        <div class="ai-avatar">◎</div>
+                        <div class="message-content">
+
+                            <!-- Typing Indicator -->
+                            <div class="typing-indicator" *ngIf="msg.isTyping">
+                                <span></span><span></span><span></span>
+                            </div>
+
+                            <!-- Message Text -->
+                            <div class="ai-bubble" *ngIf="!msg.isTyping">
+                                <div class="query-type-tag" *ngIf="msg.queryType">
+                                    <span>{{ getQueryTypeIcon(msg.queryType) }}</span>
+                                    <span>{{ msg.queryType }}</span>
+                                </div>
+                                <p class="msg-text">{{ msg.text }}</p>
+
+                                <!-- Data Summary -->
+                                <div class="data-summary" *ngIf="msg.data">
+                                    <div class="data-row">
+                                        <span class="data-label mono">Total</span>
+                                        <span class="data-val mono">{{ msg.data.total }}</span>
+                                    </div>
+                                    <div class="data-row" *ngIf="msg.data.sample?.length">
+                                        <span class="data-label mono">Sample</span>
+                                        <span class="data-val mono">{{ msg.data.sample.length }} records</span>
+                                    </div>
+                                </div>
+
+                                <span class="msg-time mono">{{ formatTime(msg.timestamp) }}</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- User Message -->
+                    <div class="message user-message" *ngIf="msg.type === 'user'">
+                        <div class="user-bubble">
+                            <p class="msg-text">{{ msg.text }}</p>
+                            <span class="msg-time mono">{{ formatTime(msg.timestamp) }}</span>
+                        </div>
+                        <div class="user-avatar">U</div>
+                    </div>
+
+                </div>
+
+                <div #messagesEnd></div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input #inputRef class="chat-input" [(ngModel)]="question" (keydown)="onKeyDown($event)"
+                        placeholder="Ask anything about your infrastructure..." [disabled]="isLoading"
+                        maxlength="500" />
+                    <div class="input-actions">
+                        <span class="char-count mono" *ngIf="question.length > 400">
+                            {{ 500 - question.length }}
+                        </span>
+                        <button class="send-btn" (click)="ask()" [disabled]="isLoading || !question.trim()">
+                            <span class="spinner" *ngIf="isLoading"></span>
+                            <span *ngIf="!isLoading">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Suggestions Panel -->
+        <div class="suggestions-panel animate-fade-in-up stagger-3">
+            <h3 class="suggestions-title">
+                <span>⬡</span> Try asking
+            </h3>
+            <div class="suggestions-list">
+                <button *ngFor="let s of suggestions; let i = index" class="suggestion-btn"
+                    [style.animation-delay]="i * 0.06 + 's'" (click)="ask(s)" [disabled]="isLoading">
+                    <span class="suggestion-arrow">→</span>
+                    <span>{{ s }}</span>
+                </button>
+            </div>
+
+            <div class="nlq-info">
+                <h4>What can I ask?</h4>
+                <div class="info-item">
+                    <span class="info-icon">◉</span>
+                    <span>Incident counts and status</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">◈</span>
+                    <span>Service health queries</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">▤</span>
+                    <span>Log level analysis</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">⬡</span>
+                    <span>Deployment history</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">◎</span>
+                    <span>Metric anomalies</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

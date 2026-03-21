@@ -1,0 +1,200 @@
+<div class="services-page">
+
+    <!-- Background -->
+    <div class="page-bg">
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header animate-fade-in-up stagger-1">
+        <div>
+            <h1>Service Registry</h1>
+            <p>Monitor and manage all your microservices</p>
+        </div>
+        <button class="btn btn-primary" (click)="toggleRegisterForm()">
+            {{ showRegisterForm ? '✕ Cancel' : '+ Register Service' }}
+        </button>
+    </div>
+
+    <!-- Success / Error Banners -->
+    <div class="success-banner animate-fade-in" *ngIf="successMessage">
+        <span>✓</span><span>{{ successMessage }}</span>
+    </div>
+    <div class="error-banner animate-fade-in" *ngIf="errorMessage">
+        <span>⚠</span><span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Register Form -->
+    <div class="register-form-card animate-fade-in-up" *ngIf="showRegisterForm">
+        <h3 class="form-title">Register New Service</h3>
+        <div class="form-grid">
+            <div class="field-group">
+                <label class="field-label">Service ID *</label>
+                <input class="input" [(ngModel)]="registerForm.serviceId" placeholder="payment-service" />
+            </div>
+            <div class="field-group">
+                <label class="field-label">Service Name *</label>
+                <input class="input" [(ngModel)]="registerForm.name" placeholder="Payment Service" />
+            </div>
+            <div class="field-group">
+                <label class="field-label">Version</label>
+                <input class="input" [(ngModel)]="registerForm.version" placeholder="1.0.0" />
+            </div>
+            <div class="field-group">
+                <label class="field-label">Environment</label>
+                <select class="select" [(ngModel)]="registerForm.environment">
+                    <option *ngFor="let e of environments" [value]="e">
+                        {{ e.charAt(0).toUpperCase() + e.slice(1) }}
+                    </option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Host</label>
+                <input class="input" [(ngModel)]="registerForm.host" placeholder="host-1.company.com" />
+            </div>
+            <div class="field-group">
+                <label class="field-label">Region</label>
+                <select class="select" [(ngModel)]="registerForm.region">
+                    <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+                </select>
+            </div>
+            <div class="field-group full-width">
+                <label class="field-label">Description</label>
+                <input class="input" [(ngModel)]="registerForm.description"
+                    placeholder="Brief description of this service" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-outline" (click)="toggleRegisterForm()">Cancel</button>
+            <button class="btn btn-primary" (click)="registerService()" [disabled]="isRegistering">
+                <span class="spinner" *ngIf="isRegistering"></span>
+                <span>{{ isRegistering ? 'Registering...' : 'Register Service' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar animate-fade-in-up stagger-2">
+        <div class="search-wrapper">
+            <span class="search-icon">⌕</span>
+            <input class="input search-input" placeholder="Search services..." [value]="searchQuery"
+                (input)="onSearch($any($event.target).value)" />
+        </div>
+        <select class="select filter-select" [(ngModel)]="filterEnvironment" (change)="onFilterChange()">
+            <option value="">All Environments</option>
+            <option *ngFor="let e of environments" [value]="e">
+                {{ e.charAt(0).toUpperCase() + e.slice(1) }}
+            </option>
+        </select>
+        <select class="select filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of statuses" [value]="s">
+                {{ s.charAt(0).toUpperCase() + s.slice(1) }}
+            </option>
+        </select>
+        <button class="btn btn-ghost" (click)="clearFilters()" *ngIf="searchQuery || filterEnvironment || filterStatus">
+            ✕ Clear
+        </button>
+        <span class="results-count">{{ filteredServices.length }} services</span>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <span>Loading services...</span>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoading && filteredServices.length === 0">
+        <div class="empty-icon">◈</div>
+        <h3>No services found</h3>
+        <p>{{ services.length === 0
+            ? 'Register your first service to start monitoring'
+            : 'Try adjusting your filters' }}</p>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="services-grid animate-fade-in-up stagger-3" *ngIf="!isLoading && filteredServices.length > 0">
+        <div class="service-card" *ngFor="let svc of filteredServices; let i = index"
+            [class]="'service-card status-' + svc.status" [style.animation-delay]="i * 0.05 + 's'">
+
+            <!-- Card Header -->
+            <div class="svc-header">
+                <div class="svc-identity">
+                    <div class="svc-icon" [class]="'icon-' + svc.status">
+                        {{ svc.name.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                        <h3 class="svc-name">{{ svc.name }}</h3>
+                        <span class="svc-id mono">{{ svc.serviceId }}</span>
+                    </div>
+                </div>
+                <div class="svc-status-badge">
+                    <span class="live-dot" [class]="getStatusDotClass(svc.status)"></span>
+                    <span class="badge" [class]="'badge-' + svc.status">{{ svc.status }}</span>
+                </div>
+            </div>
+
+            <!-- Live Metrics -->
+            <div class="svc-metrics" *ngIf="svc.latestMetrics">
+                <div class="metric-item">
+                    <span class="metric-label">CPU</span>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill" [style.width.%]="svc.latestMetrics.cpu" [style.background]="svc.latestMetrics.cpu > 90 ? 'var(--accent-crimson)' :
+                                  svc.latestMetrics.cpu > 75 ? 'var(--accent-amber)' :
+                                  'var(--accent-mint)'">
+                        </div>
+                    </div>
+                    <span class="metric-val mono">{{ svc.latestMetrics.cpu?.toFixed(0) }}%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">MEM</span>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill" [style.width.%]="svc.latestMetrics.memory" [style.background]="svc.latestMetrics.memory > 90 ? 'var(--accent-crimson)' :
+                                  svc.latestMetrics.memory > 75 ? 'var(--accent-amber)' :
+                                  'var(--accent-cyan)'">
+                        </div>
+                    </div>
+                    <span class="metric-val mono">{{ svc.latestMetrics.memory?.toFixed(0) }}%</span>
+                </div>
+            </div>
+
+            <div class="svc-no-metrics" *ngIf="!svc.latestMetrics">
+                <span>No live metrics yet</span>
+            </div>
+
+            <!-- Meta -->
+            <div class="svc-meta">
+                <span class="meta-item">
+                    <span class="meta-label">ENV</span>
+                    <span class="meta-val mono">{{ svc.environment }}</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-label">VER</span>
+                    <span class="meta-val mono">{{ svc.version }}</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-label">SEEN</span>
+                    <span class="meta-val mono">{{ timeAgo(svc.lastSeenAt) }}</span>
+                </span>
+            </div>
+
+            <!-- Actions -->
+            <div class="svc-actions">
+                <select class="select status-select" [value]="svc.status"
+                    (change)="updateStatus(svc.serviceId, $any($event.target).value)">
+                    <option *ngFor="let s of statuses" [value]="s">
+                        {{ s.charAt(0).toUpperCase() + s.slice(1) }}
+                    </option>
+                </select>
+                <button *ngIf="isAdmin" class="delete-btn" (click)="deleteService(svc.serviceId, svc.name)"
+                    title="Delete service">
+                    ✕
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
