@@ -58,19 +58,18 @@ export class LoginComponent implements OnInit {
     this.buildForm();
   }
 
-  buildForm(): void {
-    this.form = this.fb.group({
-      name:     [''],
-      email:    ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, strongPasswordValidator]],
-      role:     ['engineer'],
-    });
+ buildForm(): void {
+  this.form = this.fb.group({
+    name:     [''],
+    email:    ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],  // ← remove strongPasswordValidator here
+    role:     ['engineer'],
+  });
 
-    // Watch password for strength indicator
-    this.form.get('password')?.valueChanges.subscribe(val => {
-      this.updateStrength(val || '');
-    });
-  }
+  this.form.get('password')?.valueChanges.subscribe(val => {
+    this.updateStrength(val || '');
+  });
+}
 
   updateStrength(val: string): void {
     this.strengthChecks = {
@@ -97,22 +96,28 @@ export class LoginComponent implements OnInit {
     this.strengthColor = map[passed].color;
   }
 
-  toggleMode(): void {
-    this.isRegisterMode = !this.isRegisterMode;
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.strengthScore = 0;
-    this.strengthLabel = '';
+ toggleMode(): void {
+  this.isRegisterMode = !this.isRegisterMode;
+  this.errorMessage = '';
+  this.successMessage = '';
+  this.strengthScore = 0;
+  this.strengthLabel = '';
 
-    const nameCtrl = this.form.get('name');
-    if (this.isRegisterMode) {
-      nameCtrl?.setValidators([Validators.required, Validators.minLength(2)]);
-    } else {
-      nameCtrl?.clearValidators();
-    }
-    nameCtrl?.updateValueAndValidity();
-    this.form.reset({ role: 'engineer' });
+  const nameCtrl = this.form.get('name');
+  const passCtrl = this.form.get('password');
+
+  if (this.isRegisterMode) {
+    nameCtrl?.setValidators([Validators.required, Validators.minLength(2)]);
+    passCtrl?.setValidators([Validators.required, strongPasswordValidator]);
+  } else {
+    nameCtrl?.clearValidators();
+    passCtrl?.setValidators([Validators.required]);  // ← login needs only required
   }
+
+  nameCtrl?.updateValueAndValidity();
+  passCtrl?.updateValueAndValidity();
+  this.form.reset({ role: 'engineer' });
+}
 
   submit(): void {
     this.form.markAllAsTouched();

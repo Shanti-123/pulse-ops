@@ -65,7 +65,7 @@
                 <span class="field-error" *ngIf="passwordError">{{ passwordError }}</span>
 
                 <!-- Strength Indicator — show when typing -->
-                <div class="strength-wrapper" *ngIf="form.get('password')?.value?.length > 0">
+                <div class="strength-wrapper" *ngIf="isRegisterMode && form.get('password')?.value?.length > 0">
 
                     <!-- Bar -->
                     <div class="strength-bars">
