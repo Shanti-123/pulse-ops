@@ -11,16 +11,17 @@
 
 ### 🤖 AI-Powered Observability Platform for Modern DevOps Teams
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Now-00E5A0?style=for-the-badge)](https://pulse-ops.vercel.app)
-[![Backend API](https://img.shields.io/badge/⚡_Backend_API-Render-00D4FF?style=for-the-badge)](https://pulse-ops.onrender.com/health)
-[![GitHub](https://img.shields.io/badge/📦_Source_Code-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/Shantiiiii-12300000/pulse-ops)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Now-00E5A0?style=for-the-badge)](https://pulse-ops-eight.vercel.app/)
+[![Backend API](https://img.shields.io/badge/⚡_Backend-Health_Check-00D4FF?style=for-the-badge)](https://pulse-ops-p2xq.onrender.com/health)
+[![GitHub](https://img.shields.io/badge/📦_Source-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/Shanti-123/pulse-ops)
 
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js)](https://nodejs.org)
 [![Angular](https://img.shields.io/badge/Angular-16.x-DD0031?style=flat-square&logo=angular)](https://angular.io)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb)](https://mongodb.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
 [![Groq AI](https://img.shields.io/badge/Groq_AI-LLaMA_3.3-FF6B35?style=flat-square)](https://groq.com)
-[![Tests](https://img.shields.io/badge/Tests-98%2F98_Passing-00E5A0?style=flat-square)](https://github.com/Shantiiiii-12300000/pulse-ops)
+[![API Tests](https://img.shields.io/badge/API_Tests-58%2F58-00E5A0?style=flat-square)](https://github.com/Shanti-123/pulse-ops)
+[![E2E Tests](https://img.shields.io/badge/E2E_Tests-58%2F58-00D4FF?style=flat-square)](https://github.com/Shanti-123/pulse-ops)
 
 </div>
 
@@ -28,27 +29,31 @@
 
 ## 🌟 What is PulseOps?
 
-**PulseOps** is a production-grade AI observability platform that **automatically detects anomalies, investigates incidents, and generates postmortems** — all without human intervention. Think of it as a self-healing operations center powered by AI.
+**PulseOps** is a production-grade AI observability platform that **automatically detects anomalies, investigates incidents, and generates postmortems** — all without human intervention.
 
-When your service spikes in CPU or latency, PulseOps:
+When a service spikes in CPU or latency, PulseOps:
 1. 🔍 **Detects** it using Z-score statistical analysis
 2. 🤖 **Investigates** it autonomously using an AI agent with 5 MCP tools
 3. 📋 **Generates** a postmortem and emergency runbook automatically
-4. 📡 **Streams** the entire investigation live to your dashboard via WebSocket
+4. 📡 **Broadcasts** incident updates live to the dashboard via WebSocket
 
-> *"Built to demonstrate senior-level full-stack engineering with AI integration — from raw metric ingestion to intelligent root cause analysis."*
+> *Built to demonstrate senior-level full-stack engineering with AI integration — from raw metric ingestion to intelligent root cause analysis.*
 
 ---
 
 ## 🎬 Live Demo
 
-| Role | Email | Password |
-|------|-------|----------|
-| **Admin** | admin@demo.com | Admin@Demo1! |
-| **Engineer** | eng@demo.com | Engineer@Demo1! |
-| **Viewer** | viewer@demo.com | Viewer@Demo1! |
+🔗 **[https://pulse-ops-eight.vercel.app/](https://pulse-ops-eight.vercel.app/)**
 
-🔗 **[https://pulse-ops.vercel.app](https://pulse-ops.vercel.app)**
+Register a new account to explore. Three roles are supported:
+
+| Role | What They Can Do |
+|------|-----------------|
+| **Admin** | Full access — register services, delete, manage everything |
+| **Engineer** | Read + Write — create deployments, resolve incidents |
+| **Viewer** | Read only — view incidents and use AI Query Engine |
+
+> ⚠️ Hosted on Render free tier — first request may take 30–50 seconds to wake up.
 
 ---
 
@@ -63,104 +68,135 @@ When your service spikes in CPU or latency, PulseOps:
                        │ HTTPS / WSS
 ┌──────────────────────▼──────────────────────────────────────────┐
 │                       API LAYER                                 │
-│   Express.js · Node.js 22 · TypeScript · JWT Middleware        │
-│   REST APIs: Auth · Metrics · Incidents · Logs · NLQ           │
+│   Express.js · Node.js 22 · TypeScript · JWT + RBAC Middleware │
+│   REST: Auth · Metrics · Incidents · Logs · NLQ · Services     │
 └──────┬──────────────────────────────────┬────────────────────────┘
        │                                  │
 ┌──────▼──────────────┐     ┌─────────────▼──────────────────────┐
-│   DETECTION ENGINE  │     │         AI ENGINE                  │
+│   DETECTION ENGINE  │     │         AI ENGINE (MCP)            │
 │                     │     │                                    │
-│  Threshold Check    │     │  MCP Agent (Groq LLaMA 3.3)       │
-│  ↓                  │     │  ↓                                 │
-│  Z-Score Analysis   │     │  ① query_logs                     │
-│  (std deviation)    │     │  ② check_deployments              │
-│  ↓                  │     │  ③ analyze_anomaly                │
-│  Anomaly Event      │     │  ④ draft_postmortem               │
-│  ↓                  │     │  ⑤ suggest_runbook                │
-│  Incident Created   │─────▶  Root Cause + Fix + Confidence    │
+│  Stage 1:           │     │  Auto-triggered on incident        │
+│  Threshold Check    │     │  ① query_logs                     │
+│  (no DB needed)     │     │  ② check_deployments              │
+│         ↓           │     │  ③ analyze_anomaly  (Groq)        │
+│  Stage 2:           │     │  ④ draft_postmortem (Groq)        │
+│  Z-Score Analysis   │     │  ⑤ suggest_runbook  (Groq)        │
+│  σ > 2.5 = anomaly  │─────▶  Root Cause + Fix + Confidence    │
 └─────────────────────┘     └────────────────────────────────────┘
        │
 ┌──────▼──────────────────────────────────────────────────────────┐
 │                      DATA LAYER                                 │
 │   MongoDB Atlas · Time-Series Collection · Mongoose ORM        │
 │   Models: Users · Metrics · Incidents · Logs · Deployments     │
+│                    Services                                     │
 └─────────────────────────────────────────────────────────────────┘
        │
 ┌──────▼──────────────────────────────────────────────────────────┐
 │                   REAL-TIME LAYER                               │
-│   WebSocket Server · Event Emitter · Live Broadcasting         │
-│   Events: metric:ingested · anomaly:detected · incident:*      │
+│   WebSocket Server (ws) · Node EventEmitter · Broadcasting     │
+│   metric:ingested · anomaly:detected · incident:created/updated│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ✨ Feature Showcase
+## ✨ Features
 
 ### 🔐 Authentication & RBAC
-```
-Register → Login → JWT (1hr) + Refresh Token (1d) → Role-Based Access
 
+- JWT access token (1 hour) + refresh token (1 day) with rotation
+- bcrypt password hashing
+- Strong password validation on registration (uppercase, lowercase, number, special char)
+- Three roles enforced via middleware on every route
+
+```
 ┌─────────────┬──────────────────────────────────────────────────┐
 │    Role     │                  Permissions                     │
 ├─────────────┼──────────────────────────────────────────────────┤
-│   Admin     │ Full access · Delete services · Manage all data │
+│   Admin     │ Full access · Delete services · All routes      │
 │  Engineer   │ Read + Write · Create deployments · Resolve     │
 │   Viewer    │ Read only · View incidents · Use AI Query       │
 └─────────────┴──────────────────────────────────────────────────┘
 ```
 
 ### 📊 Metric Ingestion & Anomaly Detection
-```
-Service pushes metrics → Threshold check → Z-Score analysis
-                                                    ↓
-                         Mean ± 2.5 Standard Deviations = Anomaly
-                                                    ↓
-                              Incident auto-created with severity
-```
 
-**Two-stage detection pipeline:**
-- **Stage 1 — Threshold:** CPU > 90%, Memory > 95%, Latency > 3000ms → immediate alert
-- **Stage 2 — Z-Score:** Statistical spike beyond 2.5 standard deviations → smart alert
+Two-stage detection pipeline runs automatically on every metric push:
+
+```
+Metric pushed via SDK or POST /api/metrics
+               ↓
+  Stage 1 — Threshold Check (instant, no DB)
+    CPU > 90%  OR  Memory > 95%
+    Latency > 3000ms  OR  ErrorRate > 10%
+               ↓ no breach
+  Stage 2 — Z-Score (needs 5+ readings in DB)
+    Z = (current_value - mean) / standard_deviation
+    |Z| > 2.5  →  Anomaly detected
+    |Z| > 3.5  →  Critical severity
+               ↓
+  Incident auto-created with 5-minute cooldown
+```
 
 ### 🤖 AI Investigation Agent (MCP)
 
-When an incident is created, the AI agent runs **5 tools automatically**:
+When an incident is created, the AI agent runs 5 tools in sequence:
 
 ```
 Incident Created
       ↓
-  ┌─────────────────────────────────────────────┐
-  │           AI AGENT PIPELINE                │
-  │                                             │
-  │  Tool 1: query_logs          → Recent errors│
-  │  Tool 2: check_deployments   → Recent deploys│
-  │  Tool 3: analyze_anomaly     → Deep analysis │
-  │  Tool 4: draft_postmortem    → Auto postmortem│
-  │  Tool 5: suggest_runbook     → Emergency steps│
-  │                                             │
-  │  Output: Root Cause + Fix + 85% Confidence  │
-  └─────────────────────────────────────────────┘
+  ┌─────────────────────────────────────────────────┐
+  │              MCP AGENT PIPELINE                │
+  │                                                 │
+  │  Tool 1: query_logs        → Fetch recent errors│
+  │  Tool 2: check_deployments → Find recent deploys│
+  │  Tool 3: analyze_anomaly   → AI root cause      │
+  │  Tool 4: draft_postmortem  → Write postmortem   │
+  │  Tool 5: suggest_runbook   → Emergency runbook  │
+  │                                                 │
+  │  Model:  Groq LLaMA 3.3-70B                    │
+  │  Output: Root Cause · Suggested Fix · ~85% Conf │
+  └─────────────────────────────────────────────────┘
+      ↓
+  incident.aiAnalysis, .postmortem, .runbook saved in DB
 ```
 
 ### 🧠 Natural Language Query Engine
+
+Ask questions in plain English — PulseOps queries the DB and returns an AI answer:
+
 ```
-User: "Show me all critical incidents from last week"
-           ↓
-    PulseOps classifies → fetches DB data → asks Groq LLaMA
-           ↓
-    "There are 3 critical incidents in the last 7 days.
-     The most recent is 'CRITICAL anomaly in payment-service'
-     triggered 2 hours ago with CPU at 95%..."
+User: "Show me all critical incidents from today"
+         ↓
+  Classify → incidents
+         ↓
+  Fetch critical incidents from DB (last 24h)
+         ↓
+  Send to Groq LLaMA 3.1-8B with context
+         ↓
+  "There are 2 critical incidents today. The most recent
+   is in payment-service triggered 3 hours ago..."
 ```
 
 ### ⚡ Real-Time WebSocket Events
+
 ```
-Metric pushed → metric:ingested → Dashboard updates live
-Anomaly found → anomaly:detected → Alert notification
-Incident created → incident:created → Incidents list updates
-AI investigates → incident:updated → Detail page streams steps
+Metric pushed    →  metric:ingested    →  Dashboard refreshes
+Anomaly found    →  anomaly:detected   →  Notification shown
+Incident created →  incident:created  →  Incidents list updates
+Incident updated →  incident:updated  →  Detail page refreshes
 ```
+
+### 🖥️ Frontend Pages
+
+| Page | Key Features |
+|------|-------------|
+| **Login / Register** | Mode toggle · Password strength (register only) · Role select |
+| **Dashboard** | 6 stat cards · Recent incidents · Services overview · Live WS dot |
+| **Services** | Register · Search · Filter · Status update · Delete (admin only) |
+| **Incidents** | Filter by status/severity · Assign · Resolve · Close · Pagination |
+| **Incident Detail** | Overview · AI Analysis · Postmortem · Runbook · Deployment badge |
+| **AI Query Engine** | Chat UI · Suggestion pills · Clear · Character counter |
 
 ---
 
@@ -168,185 +204,146 @@ AI investigates → incident:updated → Detail page streams steps
 
 ```
 pulse-ops/
-├── 🖥️  server/                    ← Express + Node.js Backend
-│   └── src/
-│       ├── config/db.ts           ← MongoDB Atlas connection
-│       ├── models/                ← 6 Mongoose models
-│       │   ├── user.model.ts
-│       │   ├── metric.model.ts    ← Time-series collection
-│       │   ├── incident.model.ts
-│       │   ├── deployment.model.ts
-│       │   ├── log.model.ts
-│       │   └── service.model.ts
-│       ├── controllers/           ← 7 REST controllers
-│       ├── routes/                ← 7 route files
-│       ├── middleware/
-│       │   ├── auth.middleware.ts ← JWT + Role guard
-│       │   ├── validate.middleware.ts
-│       │   └── error.middleware.ts
-│       ├── services/
-│       │   ├── anomaly.service.ts ← Z-score detection engine
-│       │   ├── alert.service.ts   ← Incident creation + cooldown
-│       │   └── websocket.service.ts ← Real-time broadcasting
-│       ├── mcp/
-│       │   ├── agent.ts           ← AI orchestrator
-│       │   ├── mcp.server.ts
-│       │   └── tools/             ← 5 AI investigation tools
-│       │       ├── query_logs.ts
-│       │       ├── check_deployments.ts
-│       │       ├── analyze_anomaly.ts
-│       │       ├── draft_postmortem.ts
-│       │       └── suggest_runbook.ts
-│       └── server.ts              ← Express + HTTP + WS entry
+├── server/src/
+│   ├── config/db.ts              ← MongoDB Atlas connection
+│   ├── events/emitter.ts         ← Node EventEmitter bus
+│   ├── models/                   ← 6 Mongoose models
+│   │   ├── user.model.ts
+│   │   ├── metric.model.ts       ← Time-series collection
+│   │   ├── incident.model.ts
+│   │   ├── deployment.model.ts
+│   │   ├── log.model.ts
+│   │   └── service.model.ts
+│   ├── controllers/              ← 7 REST controllers
+│   ├── routes/                   ← 7 route files
+│   ├── middleware/
+│   │   ├── auth.middleware.ts    ← JWT verify + requireRole
+│   │   ├── validate.middleware.ts
+│   │   └── error.middleware.ts
+│   ├── services/
+│   │   ├── anomaly.service.ts    ← Threshold + Z-score detection
+│   │   ├── alert.service.ts      ← Incident creation + cooldown
+│   │   └── websocket.service.ts  ← Real-time broadcasting
+│   ├── mcp/
+│   │   ├── agent.ts              ← AI tool orchestrator
+│   │   └── tools/                ← 5 investigation tools
+│   └── server.ts                 ← Express + HTTP + WebSocket
 │
-├── 🅰️  client/                    ← Angular 16 Frontend
-│   └── src/app/
-│       ├── core/
-│       │   ├── guards/auth.guard.ts
-│       │   ├── interceptors/auth.interceptor.ts
-│       │   └── services/
-│       │       ├── api.service.ts
-│       │       ├── auth.service.ts
-│       │       └── websocket.service.ts
-│       ├── modules/
-│       │   ├── auth/login/        ← Login + Register + Strength
-│       │   ├── dashboard/         ← Stats + Live feed
-│       │   ├── services/          ← Service registry
-│       │   ├── incidents/         ← List + Detail + AI tabs
-│       │   └── nlq/               ← AI Query Engine
-│       └── shared/
-│           ├── sidebar/
-│           └── topbar/
+├── client/src/app/
+│   ├── core/
+│   │   ├── guards/auth.guard.ts
+│   │   ├── interceptors/auth.interceptor.ts
+│   │   └── services/ (api, auth, websocket)
+│   ├── modules/
+│   │   ├── auth/login/
+│   │   ├── dashboard/
+│   │   ├── services/
+│   │   ├── incidents/
+│   │   └── nlq/
+│   └── shared/ (sidebar, topbar)
 │
-├── 📦  sdk/                       ← Node.js SDK
-│   └── src/
-│       ├── pulseops.sdk.ts        ← SDK class
-│       └── types.ts
+├── sdk/src/
+│   ├── pulseops.sdk.ts           ← SDK class (written, untested E2E)
+│   └── types.ts
 │
-└── 🧪  client/e2e/                ← Playwright E2E Tests
-    ├── 01-auth.spec.ts            ← 13 auth tests
-    ├── 02-dashboard.spec.ts       ← 14 dashboard tests
-    ├── 03-services.spec.ts        ← 10 service tests
-    ├── 04-incidents.spec.ts       ← 11 incident tests
-    └── 05-nlq.spec.ts             ← 10 NLQ tests
+└── client/e2e/                   ← 58 Playwright tests
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| **Frontend** | Angular 16 + TypeScript | Enterprise-grade SPA framework |
-| **Styling** | SCSS + CSS Variables | "Obsidian Command" dark theme |
-| **Backend** | Node.js 22 + Express | Fast, scalable REST API |
-| **Language** | TypeScript (strict) | Type safety across the stack |
-| **Database** | MongoDB Atlas | Time-series collections for metrics |
-| **ORM** | Mongoose 8 | Schema validation + queries |
-| **AI** | Groq + LLaMA 3.3-70B | Fast, free AI inference |
-| **AI Protocol** | MCP (Model Context Protocol) | Structured AI tool calling |
-| **Auth** | JWT + bcryptjs | Stateless, secure authentication |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | Angular 16 + TypeScript | SPA framework |
+| **Styling** | SCSS + CSS Variables | Dark "Obsidian Command" theme |
+| **Backend** | Node.js 22 + Express | REST API server |
+| **Language** | TypeScript | Type safety full stack |
+| **Database** | MongoDB Atlas | Time-series metric storage |
+| **ORM** | Mongoose 8 | Schema + query layer |
+| **AI Inference** | Groq + LLaMA 3.3-70B | AI investigation + NLQ |
+| **AI Protocol** | MCP | Structured AI tool calling |
+| **Auth** | JWT + bcryptjs | Stateless authentication |
 | **Real-time** | WebSocket (ws) | Live event broadcasting |
-| **Testing** | Playwright + Node.js scripts | E2E + API test coverage |
-| **Deployment** | Vercel + Render | Zero-config cloud deployment |
+| **Testing** | Playwright + Node fetch | E2E + API tests |
+| **Deploy** | Vercel + Render | Cloud hosting |
 
 ---
 
 ## 📡 API Reference
 
-### Authentication
 ```http
-POST /api/auth/register    → Register new user
-POST /api/auth/login       → Login + get tokens
-POST /api/auth/refresh     → Rotate access token
-POST /api/auth/logout      → Invalidate refresh token
-```
+# Auth
+POST /api/auth/register     { name, email, password, role }
+POST /api/auth/login        { email, password }
+POST /api/auth/refresh      { refreshToken }
+POST /api/auth/logout       { refreshToken }
 
-### Services
-```http
-POST   /api/services                    → Register service
-GET    /api/services                    → List all services
-GET    /api/services/:serviceId         → Get by ID
-PATCH  /api/services/:serviceId/status → Update status
-DELETE /api/services/:serviceId         → Delete (admin only)
-```
+# Services
+POST   /api/services                      Register / upsert
+GET    /api/services?environment=&status= List with filters
+GET    /api/services/:serviceId           Get by ID
+PATCH  /api/services/:serviceId/status   Update (engineer+)
+DELETE /api/services/:serviceId          Delete (admin only)
 
-### Metrics
-```http
-POST /api/metrics                        → Ingest metric (SDK)
-GET  /api/metrics/:serviceId             → Get history
-GET  /api/metrics/:serviceId/latest      → Get latest
-```
+# Metrics — no auth needed (SDK pushes directly)
+POST /api/metrics                         Ingest
+GET  /api/metrics/:serviceId?limit=       History (engineer+)
+GET  /api/metrics/:serviceId/latest       Latest (engineer+)
 
-### Incidents
-```http
-GET   /api/incidents/stats          → Statistics dashboard
-GET   /api/incidents                → List with filters
-GET   /api/incidents/:id            → Get by ID
-PATCH /api/incidents/:id/assign     → Assign to engineer
-PATCH /api/incidents/:id/resolve    → Resolve with root cause
-PATCH /api/incidents/:id/close      → Close incident
-```
+# Incidents
+GET   /api/incidents/stats?hoursBack=      Stats summary
+GET   /api/incidents?status=&severity=&page=&limit=
+GET   /api/incidents/:id
+PATCH /api/incidents/:id/assign            { assignedTo }
+PATCH /api/incidents/:id/resolve           { rootCause, notes }
+PATCH /api/incidents/:id/close
 
-### Logs & Deployments
-```http
-POST /api/logs                       → Ingest log (SDK)
-GET  /api/logs?serviceId=&level=     → Query logs
+# Logs — no auth needed (SDK pushes directly)
+POST /api/logs                            Ingest
+GET  /api/logs?serviceId=&level=          Query (engineer+)
 
-POST /api/deployments                → Create deployment
-GET  /api/deployments?serviceId=     → Query deployments
-```
+# Deployments
+POST /api/deployments                     Create (engineer+)
+GET  /api/deployments?serviceId=          List (engineer+)
 
-### AI Natural Language Query
-```http
-POST /api/nlq/query
-Body: { "question": "How many critical incidents are open?" }
-Response: { "answer": "There are 3 critical incidents...", "data": {...} }
+# NLQ
+POST /api/nlq/query                       { question }
 ```
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-```
-Node.js 18+
-MongoDB Atlas account (free tier)
-Groq API key (free at console.groq.com)
-```
+## 🚀 Run Locally
 
 ### 1. Clone
 ```bash
-git clone https://github.com/Shantiiiii-12300000/pulse-ops.git
+git clone https://github.com/Shanti-123/pulse-ops.git
 cd pulse-ops
+npm install
 ```
 
-### 2. Backend Setup
+### 2. Create `server/.env`
+```env
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/pulseops
+JWT_SECRET=any_long_random_string
+REFRESH_TOKEN_SECRET=another_long_random_string
+GROQ_API_KEY=gsk_your_groq_api_key
+CLIENT_URL=http://localhost:4200
+PORT=3000
+```
+
+### 3. Start Backend
 ```bash
-# Install dependencies
-npm install
-
-# Create environment file
-cp server/.env.example server/.env
-# Fill in: MONGODB_URI, JWT_SECRET, REFRESH_TOKEN_SECRET, GROQ_API_KEY
-
-# Start server
 npx ts-node server/src/server.ts
 ```
 
-### 3. Frontend Setup
+### 4. Start Frontend
 ```bash
-cd client
-npm install
-ng serve
+cd client && npm install && ng serve
+# Open http://localhost:4200
 ```
 
-### 4. Open App
-```
-http://localhost:4200
-```
-
-### 5. SDK Integration (any Node.js service)
+### 5. SDK Usage
 ```typescript
 import { PulseOpsSDK } from './sdk/src/pulseops.sdk';
 
@@ -356,54 +353,84 @@ const pulseops = new PulseOpsSDK({
   serviceName: 'Payment Service',
 });
 
-// Register your service
 await pulseops.register();
 
-// Auto-track metrics every 30 seconds
 pulseops.startAutoTracking(() => ({
-  cpu: getCpuUsage(),
-  memory: getMemoryUsage(),
-  latency: getAvgLatency(),
-  errorRate: getErrorRate(),
+  cpu: 45.2, memory: 62.1, latency: 120, errorRate: 0.5,
 }));
 
-// Log errors automatically
-await pulseops.error('Payment failed', err.stack, { userId });
+await pulseops.error('Payment failed', err.stack, { orderId: '456' });
 ```
+
+> ⚠️ SDK code is complete. Full E2E integration test with an external service is on the roadmap.
 
 ---
 
 ## 🧪 Test Coverage
 
-### Backend API Tests — 98/98 Passing ✅
-```
+### Backend API Tests — 58 passing ✅
+```bash
 npx ts-node server/src/scripts/testAllApis.ts
 ```
 
-| Suite | Tests | Status |
-|-------|-------|--------|
-| AUTH | 9 tests | ✅ All passing |
-| SERVICES | 10 tests | ✅ All passing |
-| METRICS | 5 tests | ✅ All passing |
-| INCIDENTS | 11 tests | ✅ All passing |
-| LOGS | 9 tests | ✅ All passing |
-| DEPLOYMENTS | 5 tests | ✅ All passing |
-| NLQ | 5 tests | ✅ All passing |
-| DELETE/RBAC | 4 tests | ✅ All passing |
+| Suite | Tests | Coverage |
+|-------|-------|---------|
+| AUTH | 9 | Register · Login · Wrong password · Weak password · Duplicate · No token · Invalid token |
+| SERVICES | 10 | CRUD · Duplicate → 409 · Missing fields → 400 · 404 · RBAC viewer/engineer |
+| METRICS | 5 | Push normal/anomalous · Missing serviceId → 400 · Get latest/history |
+| INCIDENTS | 11 | List · Stats · Filters · Pagination · Resolve · rootCause required · Assign · Close · RBAC |
+| LOGS | 9 | All 5 levels · Query · Filter level · Missing serviceId → 400 · Invalid level |
+| DEPLOYMENTS | 5 | Create · Get all · Get by service · Missing fields · Viewer → 403 |
+| NLQ | 5 | Incidents · Services · Deployments · Logs · Fatal logs questions |
+| DELETE/RBAC | 4 | Viewer → 403 · Engineer → 403 · Admin can delete · Already deleted → 404 |
 
-### Playwright E2E Tests — 58/58 Passing ✅
+### Playwright E2E Tests — 58 passing ✅
 ```bash
 cd client
 npx playwright test --reporter=list
 ```
 
 | Suite | Tests | Coverage |
-|-------|-------|----------|
-| AUTH | 13 tests | Register · Login · Password strength · RBAC |
-| DASHBOARD | 14 tests | Stats · Navigation · WebSocket · User info |
-| SERVICES | 10 tests | CRUD · Search · Delete · Status update |
-| INCIDENTS | 11 tests | Filters · Detail · Tabs · Resolve · Assign |
-| NLQ | 10 tests | Query · Suggestions · Chat · Clear |
+|-------|-------|---------|
+| AUTH | 13 | Page loads · Forms · Validation · Register · Login · Strength · Logout · Guards |
+| DASHBOARD | 14 | Stat cards · Navigation · Active highlights · Refresh · Links · User info · WS status |
+| SERVICES | 10 | Register · Search · Filter · Clear · Status update · Delete · Admin-only buttons |
+| INCIDENTS | 11 | Filters · Clear · Click row · Detail tabs · Resolve/Assign validation · Meta cards |
+| NLQ | 10 | Chat · Send · Enter key · Suggestions · Clear · Character limit · Loading state |
+
+---
+
+## 💡 Engineering Decisions
+
+### Why Z-Score?
+Threshold alerts cause false positives. Z-score adapts to each service's baseline:
+```
+Z = (current - mean) / std_deviation
+Trigger if |Z| > 2.5  (industry standard)
+```
+A payment service at 80% CPU is normal. A reporting service at 80% is an anomaly.
+
+### Why MCP for AI Tools?
+Gives the AI a **typed, structured interface** to call tools — making investigation deterministic and auditable rather than letting the LLM hallucinate free-form.
+
+### Why WebSocket?
+Incident dashboards need sub-second updates. HTTP polling adds 1–5 second lag and wastes bandwidth. WebSocket gives instant, persistent, bidirectional updates at zero cost.
+
+### Why MongoDB Time-Series?
+Metrics are append-only, time-ordered — exactly what time-series collections optimize: automatic bucketing, compression, and time-range queries.
+
+---
+
+## 🗺️ Roadmap
+
+| Feature | Notes |
+|---------|-------|
+| Multi-tenancy | `tenantId` on all models + middleware filter |
+| Rate limiting | `express-rate-limit` per API key |
+| SDK E2E testing | Full integration test with real Express service |
+| Docker Compose | Single command local setup |
+| Data TTL | MongoDB TTL index — expire metrics after 30 days |
+| SDK batching | Buffer metrics, flush every 5 seconds |
 
 ---
 
@@ -411,74 +438,26 @@ npx playwright test --reporter=list
 
 | Service | Platform | URL |
 |---------|----------|-----|
-| Frontend | Vercel | https://pulse-ops.vercel.app |
+| Frontend | Vercel | https://pulse-ops-eight.vercel.app/ |
 | Backend | Render | https://pulse-ops.onrender.com |
-| Database | MongoDB Atlas | Cloud (Singapore region) |
-
-### Deploy Your Own
-```bash
-# 1. Fork this repo
-
-# 2. Deploy backend to Render
-#    Root: / | Build: npm run build | Start: npm start
-
-# 3. Deploy frontend to Vercel
-#    Root: client | Build: npm run build -- --configuration production
-
-# 4. Set environment variables on Render:
-MONGODB_URI=your_atlas_uri
-JWT_SECRET=your_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-GROQ_API_KEY=your_groq_key
-CLIENT_URL=your_vercel_url
-```
+| Database | MongoDB Atlas M0 | Cloud — Singapore |
 
 ---
 
-## 💡 Key Engineering Decisions
+## 👩‍💻 What This Demonstrates
 
-### Why Z-Score for Anomaly Detection?
-Simple threshold alerts (CPU > 90%) generate too many false positives. Z-score measures how far a value deviates from the **statistical norm** of that specific service. A payment service running at 80% CPU is normal; a reporting service at 80% is an anomaly.
-
-```
-Z = (current_value - mean) / standard_deviation
-Anomaly if |Z| > 2.5  (industry standard threshold)
-```
-
-### Why MCP for AI Tools?
-Model Context Protocol gives the AI agent a **structured interface** to call tools with typed inputs/outputs. This prevents hallucinations and makes the investigation pipeline deterministic and auditable.
-
-### Why WebSocket over Polling?
-The dashboard shows live metric updates and AI agent steps streaming in real-time. HTTP polling would add 1-5 second delay and waste bandwidth. WebSocket gives us **instant, bidirectional, persistent** communication.
-
-### Why MongoDB Time-Series?
-Metrics are append-only, time-ordered data. MongoDB's native time-series collections provide **automatic bucketing, compression, and query optimization** for exactly this use case — far better than a regular collection.
-
----
-
-## 🗺️ Roadmap
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Multi-tenancy | 📋 Planned | Add `tenantId` to all models + middleware filter |
-| Rate limiting | 📋 Planned | `express-rate-limit` per API key |
-| SDK batching | 📋 Planned | Buffer 5 metrics, flush every 5 seconds |
-| ReAct AI loop | 📋 Planned | Multi-turn reasoning instead of sequential tools |
-| Docker compose | 📋 Planned | Single command local setup |
-| API key per service | 📋 Planned | Per-service auth instead of JWT for SDK |
-
----
-
-## 👩‍💻 About
-
-Built as a portfolio project to demonstrate:
-
-- **Full-stack TypeScript** development (Angular + Node.js)
-- **AI integration** with MCP tools and LLM inference
-- **Real-time systems** with WebSocket event broadcasting
-- **Statistical algorithms** (Z-score anomaly detection)
-- **Production patterns** (JWT rotation, RBAC, cooldowns, retry logic)
-- **Testing discipline** (98 backend + 58 E2E tests)
+| Skill | Evidence |
+|-------|---------|
+| Full-stack TypeScript | Angular + Node.js end to end |
+| AI Integration | MCP tools + Groq LLM + prompt engineering |
+| Real-time Systems | WebSocket server + event-driven architecture |
+| Statistical Algorithms | Z-score anomaly detection |
+| REST API Design | 7 resource domains + proper HTTP codes |
+| Auth & Security | JWT rotation + bcrypt + RBAC middleware |
+| Database Design | Time-series collection + references |
+| Testing | 58 API + 58 Playwright E2E tests |
+| Production Patterns | Cooldowns + retry logic + error handling |
+| Clean Architecture | Controllers → Services → Models |
 
 ---
 
@@ -486,8 +465,8 @@ Built as a portfolio project to demonstrate:
 
 **⭐ Star this repo if you found it useful!**
 
-[![GitHub stars](https://img.shields.io/github/stars/Shantiiiii-12300000/pulse-ops?style=social)](https://github.com/Shantiiiii-12300000/pulse-ops)
+[![GitHub stars](https://img.shields.io/github/stars/Shanti-123/pulse-ops?style=social)](https://github.com/Shanti-123/pulse-ops)
 
-Made with ❤️ and lots of ☕
+Built with ❤️ — MEAN Stack + Groq AI
 
 </div>
