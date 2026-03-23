@@ -1,9 +1,9 @@
 {
-  "name": "pulseops-server",
+  "name": "pulseops",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm install && tsc",
-    "start": "node dist/server.js"
+    "build": "cd server && npm install && npx tsc",
+    "start": "node server/dist/server.js"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
