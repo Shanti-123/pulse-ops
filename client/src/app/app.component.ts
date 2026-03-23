@@ -27,7 +27,6 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => {
         this.isAuthPage = e.url.includes('/auth');
-        // Connect WS when navigating away from auth
         if (!this.isAuthPage && this.authService.isLoggedIn) {
           if (!this.wsService.connected$.value) {
             this.wsService.connect();
