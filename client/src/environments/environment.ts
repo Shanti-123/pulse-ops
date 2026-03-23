@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
-  wsUrl: 'ws://localhost:3000',
+  apiUrl: 'https://pulse-ops-p2xq.onrender.com/api',
+  wsUrl:  'wss://pulse-ops-p2xq.onrender.com',
 };
